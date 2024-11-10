@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧校园</title>
+    <style>
+        html,
+        body,
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+
+       .input-card.btn {
+            margin-right: 1.2rem;
+            width: 5rem;
+        }
+
+       .input-card.btn:last-child {
+            margin-right: 0;
+        }
+    </style>
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: "5f2a3f4de95c70a031062804225cea36",
+        };
+    </script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=c2d41093d0de2ff063d9decdd5a4fe46"></script>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+</head>
+
+<body>
+    <div id="container"></div>
+    <div class="input-card">
+        <h4>轨迹回放控制</h4>
+        <div class="input-item">
+            <input type="button" class="btn" value="开始动画" id="start" onclick="startAnimation()"/>
+            <input type="button" class="btn" value="暂停动画" id="pause" onclick="pauseAnimation()"/>
+        </div>
+        <div class="input-item">
+            <input type="button" class="btn" value="继续动画" id="resume" onclick="resumeAnimation()"/>
+            <input type="button" class="btn" value="停止动画" id="stop" onclick="stopAnimation()"/>
+        </div>
+    </div>
+    <script>
+        // 定义常量存储图标路径和信息窗口样式
+        const ICON_PATHS = {
+            第一教学楼: 'ZHB.jpg',
+            北图书馆: 'ZHB.jpg',
+            第二教学楼: 'ZHB.jpg',
+            第一食堂: 'ZHB.jpg',
+            竹苑5栋: 'ZHB.jpg',
+            第二食堂: 'ZHB.jpg',
+            致知楼: 'ZHB.jpg',
+            立德楼: 'ZHB.jpg',
+            智华楼: 'ZHB.jpg',
+            经管楼: 'ZHB.jpg',
+            土木楼: 'ZHB.jpg',
+            至信楼: 'ZHB.jpg',
+            文法楼: 'ZHB.jpg',
+            生物楼: 'ZHB.jpg',
+            第二图书馆: 'ZHB.jpg',
+            至诚楼: 'ZHB.jpg',
+            园林楼: 'ZHB.jpg',
+            林工楼: 'ZHB.jpg',
+            林学楼: 'ZHB.jpg',
+            信息楼: 'ZHB.jpg',
+            体育馆: 'ZHB.jpg',
+            茶苑餐厅: 'ZHB.jpg',
+            第四食堂: 'ZHB.jpg',
+            菜鸟驿站: 'ZHB.jpg',
+            松苑: 'ZHB.jpg',
+            橡苑: 'ZHB.jpg',
+            篮球场: 'ZHB.jpg',
+            足球场: 'ZHB.jpg',
+            工学楼: 'ZHB.jpg'
+        };
+        const INFO_WINDOW_STYLE = {
+            offset: new AMap.Pixel(0, -30),
+            minWidth: 200
+        };
+
+        // 创建地图实例
+        const map = new AMap.Map('container', {
+            center: [102.760536, 25.059855],
+            mapStyle: "amap://styles/default",
+            zoom: 16.5,
+            viewMode: '2D',
+            pitch: 45,
+        });
+
+        // 创建标记点函数
+        function createMarker(position, title, icon) {
+            const marker = new AMap.Marker({
+                position: position,
+                title: title,
+                icon: icon
+            });
+            // 创建一个自定义的文本标签
+            const label = new AMap.Text({
+                text: title,
+                position: marker.getPosition(),
+                offset: new AMap.Pixel(0, -20)
+            });
+            map.add(label);
+            return marker;
+        }
+
+        // 创建信息窗口函数
+        function createInfoWindow(content) {
+            return new AMap.InfoWindow({
+                content: content,
+               ...INFO_WINDOW_STYLE
+            });
+        }
+
+        // 创建图标函数
+        function createIcon(path, size) {
+            return new AMap.Icon({
+                size: size,
+                image: path,
+                imageSize: size
+            });
+        }
+
+        // 创建地点标记和信息窗口
+        function createLocationMarkerAndInfoWindow(locationName, position, description) {
+            const icon = createIcon(ICON_PATHS[locationName], new AMap.Size(30, 30));
+            const marker = createMarker(position, locationName, icon);
+            const infoWindow = createInfoWindow(description);
+            marker.on('click', function () {
+                infoWindow.open(map, marker.getPosition());
+            });
+            map.add(marker);
+            return marker;
+        }
+
+        // 创建标记和信息窗口
+        createLocationMarkerAndInfoWindow('第一教学楼', [102.758799, 25.060301], '这是教学楼，是学生们汲取知识的重要场所。这里有宽敞明亮的教室和先进的教学设备。');
+        createLocationMarkerAndInfoWindow('北图书馆', [102.757977, 25.061454], '这是图书馆，知识的宝库。拥有丰富的藏书、舒适的阅读环境和先进的电子资源查询系统。');
+        createLocationMarkerAndInfoWindow('第二教学楼', [102.756879, 25.061547], '这是教学楼，是学生们汲取知识的重要场所。这里有宽敞明亮的教室和先进的教学设备。');
+        createLocationMarkerAndInfoWindow('第一食堂', [102.759064, 25.061776], '这是食堂，美味的汇聚地。提供各种口味的美食，满足师生的饮食需求。');
+        createLocationMarkerAndInfoWindow('第二食堂', [102.758103, 25.062613], '这是食堂，美味的汇聚地。提供各种口味的美食，满足师生的饮食需求。');
+        createLocationMarkerAndInfoWindow('竹苑5栋', [102.755962, 25.061865], '这是宿舍，学生们的温馨港湾。提供舒适的居住环境，让学生们在学习之余能得到充分的休息。');
+        createLocationMarkerAndInfoWindow('立德楼', [102.754989, 25.058016], '这是立德楼，经济与管理学科的重要教学和研究场所。');
+        createLocationMarkerAndInfoWindow('智华楼', [102.755191, 25.057342], '这是智华楼，经济与管理学科的重要教学和研究场所。');
+        createLocationMarkerAndInfoWindow('致知楼', [102.753838, 25.057888], '这是致知楼，经济与管理学科的重要教学和研究场所。');
+        createLocationMarkerAndInfoWindow('经管楼', [102.754151, 25.056888], '这是经管楼，经济与管理学科的重要教学和研究场所。');
+        createLocationMarkerAndInfoWindow('土木楼', [102.754714, 25.056781], '这是土木楼，土木工程专业的教学和实践基地。');
+        createLocationMarkerAndInfoWindow('至信楼', [102.755852, 25.057212], '至信楼为师生提供了良好的教学和办公环境。');
+        createLocationMarkerAndInfoWindow('文法楼', [102.755646, 25.056597], '文法楼是文学与法学等学科的教学场所。');
+        createLocationMarkerAndInfoWindow('生物楼', [102.757095, 25.056263], '生物楼致力于生物学科的教学与科研。');
+        createLocationMarkerAndInfoWindow('第二图书馆', [102.757471, 25.056981], '第二图书馆丰富了学校的文献资源。');
+        createLocationMarkerAndInfoWindow('至诚楼', [102.758808, 25.05716], '至诚楼承载着多样的教学和学术活动。');
+        createLocationMarkerAndInfoWindow('园林楼', [102.759904, 25.059178], '园林楼展现了园林艺术与设计的魅力。');
+        createLocationMarkerAndInfoWindow('林工楼', [102.757803, 25.05923], '林工楼为林业工程学科的发展提供支持。');
+        createLocationMarkerAndInfoWindow('林学楼', [102.756939, 25.062424], '林学楼是林学专业的重要教学和科研场所。');
+        createLocationMarkerAndInfoWindow('信息楼', [102.759788, 25.060382], '信息楼是信息技术相关学科的教学和研究中心。');
+        createLocationMarkerAndInfoWindow('体育馆', [102.7621, 25.06151], '体育馆为师生提供了体育锻炼和竞技的场所。');
+        createLocationMarkerAndInfoWindow('菜鸟驿站', [102.762959, 25.06031], '菜鸟驿站方便了师生的快递收发。');
+        createLocationMarkerAndInfoWindow('茶苑餐厅', [102.756554, 25.057892], '这是食堂，美味的汇聚地。提供各种口味的美食，满足师生的饮食需求。');
+        createLocationMarkerAndInfoWindow('第四食堂', [102.761788, 25.058597], '这是食堂，美味的汇聚地。提供各种口味的美食，满足师生的饮食需求。');
+        createLocationMarkerAndInfoWindow('松苑', [102.760712, 25.061466], '松苑是一个环境优美的住宿区域。');
+        createLocationMarkerAndInfoWindow('橡苑', [102.763257, 25.057519], '橡苑为学生提供舒适的居住环境。');
+        createLocationMarkerAndInfoWindow('篮球场', [102.760575, 25.062488], '这是篮球场，学生们进行体育活动的热门场地。');
+        createLocationMarkerAndInfoWindow('足球场', [102.761959, 25.062873], '足球场是体育爱好者的天堂。');
+        createLocationMarkerAndInfoWindow('工学楼', [102.762817, 25.062513], '工学楼是工程学科的教学和研究场所。');
+
+        AMap.plugin(['AMap.ToolBar', 'AMap.Scale', 'AMap.Geolocation', 'AMap.ControlBar', 'AMap.HawkEye'], function () {
+            const toolbar = new AMap.ToolBar({
+                position: { left: '10px', top: '10px' }
+            });
+            const scale = new AMap.Scale({
+                position: { left: '10px', bottom: '50px' }
+            });
+            const hawkEye = new AMap.HawkEye({
+                position: { right: '10px', bottom: '200px' }
+            });
+            const geolocation = new AMap.Geolocation({
+                position: { left: '120px', bottom: '50px' }
+            });
+            const controlBar = new AMap.ControlBar({
+                position: { right: '150px', top: '10px' }
+            });
+            map.addControl(toolbar);
+            map.addControl(scale);
+            map.addControl(geolocation);
+            map.addControl(controlBar);
+            map.addControl(hawkEye);
+        });
+
+        // JSAPI2.0 使用覆盖物动画必须先加载动画插件
+        AMap.plugin('AMap.MoveAnimation', function () {
+            var marker;
+            var lineArr = [
+            [102.752301,25.057867],
+                [102.752699,25.057751],
+                [102.752703,25.057672],
+                [102.752769,25.05759],
+                [102.752843,25.057519],
+                [102.752973,25.057463],
+                [102.754503,25.057192],
+                [102.754492,25.057032],
+                [102.754515,25.056993],
+                [102.754556,25.056963],
+                [102.754996,25.056921],
+                [102.756203,25.056745],
+                [102.756328,25.057598],
+                [102.757043,25.057523],
+                [102.756972,25.057017],
+                [102.756894,25.056646],
+                [102.757699,25.056525],
+                [102.758183,25.056468],
+                [102.758306,25.056463],
+                [102.758566,25.056502],
+                [102.758565,25.056587],
+                [102.758235,25.056789],
+                [102.758157,25.056883],
+                [102.758039,25.057119],
+                [102.757994,25.057292],
+                [102.757978,25.057469],
+                [102.758055,25.058237],
+                [102.758112,25.05877],
+                [102.758175,25.059593],
+                [102.758252,25.059773],
+                [102.757372,25.060682],
+                [102.756889,25.061126],
+                [102.756376,25.061709],
+                [102.756248,25.061824],
+                [102.75612,25.062055],
+                [102.756097,25.062252],
+                [102.75607,25.062305],
+                [102.75588,25.062486],
+                [102.75583,25.062604],
+                [102.755829,25.062606],
+                [102.755814,25.062714],
+                [102.755887,25.062814],
+                [102.756163,25.063066],
+                [102.75636,25.063175],
+                [102.757084,25.063417],
+                [102.757245,25.063433],
+                [102.757347,25.063396],
+                [102.75893,25.062382],
+                [102.75934,25.062283],
+                [102.759587,25.062187],
+                [102.759694,25.06212],
+                [102.759828,25.061938],
+                [102.759823,25.061857],
+                [102.759426,25.061214],
+                [102.759586,25.061122],
+                [102.76037,25.060739],
+                [102.760416,25.060691],
+                [102.760429,25.060644],
+                [102.760563,25.060638],
+                [102.761849,25.060911],
+                [102.761831,25.060974],
+                [102.762547,25.061252],
+                [102.762698,25.061362],
+                [102.763103,25.061844],
+                [102.763107,25.061887],
+                [102.763048,25.062093],
+                [102.763197,25.062147],
+                [102.763496,25.062352],
+                [102.763757,25.062517],
+                [102.763345,25.062771],
+                [102.76316,25.062567],
+                [102.762942,25.062217],
+                [102.76183,25.061951],
+                [102.761751,25.061891],
+                [102.761738,25.061815],
+                [102.76183,25.060976],
+                [102.761663,25.060931],
+                [102.760824,25.0608],
+                [102.760366,25.060744],
+                [102.760411,25.060697],
+                [102.76043,25.060647],
+                [102.760409,25.060612],
+                [102.760351,25.060589],
+                [102.760469,25.060152],
+                [102.760483,25.059893],
+                [102.760502,25.059509],
+                [102.760624,25.059502],
+                [102.760629,25.059441],
+                [102.761551,25.059435],
+                [102.761569,25.059003],
+                [102.761957,25.058995],
+                [102.762104,25.058893],
+                [102.762181,25.058798],
+                [102.762204,25.05847],
+                [102.762138,25.058289],
+                [102.762063,25.058217],
+                [102.761476,25.05808],
+                [102.761401,25.057938],
+                [102.761438,25.057579],
+                [102.761556,25.057314],
+                [102.761918,25.057523],
+                [102.761975,25.057519],
+                [102.762134,25.057303],
+                [102.762906,25.057788],
+                [102.762702,25.058092],
+                [102.763412,25.058505],
+                [102.76402,25.057579],
+                [102.763655,25.057373],
+                [102.763268,25.057147],
+                [102.762955,25.057016],
+                [102.762751,25.056967],
+                [102.762189,25.056895],
+                [102.761901,25.05693],
+                [102.761807,25.056974],
+                [102.761677,25.057093],
+                [102.761554,25.057305],
+                [102.761083,25.057039],
+                [102.760897,25.056944],
+                [102.759925,25.056825],
+                [102.759204,25.056704],
+                [102.759437,25.05703],
+                [102.759512,25.057213],
+                [102.759537,25.057529],
+                [102.75946,25.058322],
+                [102.759447,25.059233],
+                [102.759524,25.059763],
+                [102.758383,25.059798],
+                [102.758241,25.059771],
+                [102.757134,25.059769],
+                [102.756719,25.059722],
+                [102.75644,25.059648]
+            ];
+            marker = new AMap.Marker({
+                map: map,
+                position: lineArr[0],
+                icon: "https://a.amap.com/jsapi_demos/static/demo-center-v2/car.png",
+                offset: new AMap.Pixel(-13, -26),
+            });
+
+            // 绘制轨迹
+            var polyline = new AMap.Polyline({
+                map: map,
+                path: lineArr,
+                showDir: true,
+                strokeColor: "#28F",  //线颜色
+                strokeWeight: 6,      //线宽
+            });
+
+            var passedPolyline = new AMap.Polyline({
+                map: map,
+                strokeColor: "#AF5",  //线颜色
+                strokeWeight: 6,      //线宽
+            });
+
+
+            marker.on('moving', function (e) {
+                passedPolyline.setPath(e.passedPath);
+                map.setCenter(e.target.getPosition(), true)
+            });
+
+            map.setFitView();
+
+            window.startAnimation = function startAnimation() {
+                marker.move
+                marker.moveAlong (lineArr, {
+// 每一段的时长
+                duration: 500,// 可根据实际采集时间间隔设置
+// JSAPI2.0 是否延道路自动设置角度在 moveAlong 里设置
+                autoRotation: true,
+            });
+};
+    window.pauseAnimation = function () {
+marker.pauseMove();
+};
+window.resumeAnimation = function () {
+marker.resumeMove();
+};
+window.stopAnimation = function () {
+marker.stopMove();
+};
+});
+</script>
+</body>
+</html>
